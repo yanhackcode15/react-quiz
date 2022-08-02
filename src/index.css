@@ -1,0 +1,187 @@
+* {
+    padding: 0;
+    margin: 0;
+    font-family: "Karla", sans-serif;
+    color: #ffffff;
+    box-sizing: border-box;
+}
+
+.main {
+    position: relative;
+    width: 360px;
+    height: 379px;
+    margin-left: auto; 
+    margin-right: auto;
+    margin-top: 69px;
+    background: #0B2434;
+}
+
+.innerMain {
+    position: absolute;
+    width: 320px;
+    height: 320px;
+    left: 20px;
+    top: 30px;
+    background: #F5F5F5;
+    border-radius: 10px;
+    padding: 34px;
+    text-align: center;
+}
+
+.innerMain h1 {
+    color: #2B283A;
+    font-family: 'Karla';
+    font-style: normal;
+    font-weight: 700;
+    font-size: 26px;
+}
+
+.innerMain p{
+    color: #4A4E74;
+    font-family: 'Inter', sans-serif;
+    font-style: normal;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 16px;
+}
+
+.dice {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+    grid-template-rows: auto auto; 
+    gap: 15px 15px;
+    margin-top: 30px;
+    
+}
+
+.die {
+    width: 36px;
+    height: 36px;
+    box-shadow: 0px 2px 2px #4A4E74;
+    border-width: 1px; 
+    border-radius: 5px;
+    margin: auto; 
+    background-color: #ffffff;
+    place-self: center;
+    color: #2B283A;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    font-size: 2em; 
+    padding: 4px;
+}
+
+.roll {
+    margin-top: 30px;
+    width: 92px;
+    height: 36px;
+    font-size: 16px;
+    line-height: 19px;
+    text-align: center;
+    background-color: #5035FF;
+    border-radius: 5px;
+    border-width: 0px;
+    cursor: pointer;
+}
+
+.dice_dots {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+}
+
+.dot {
+    width: 5px;
+    height: 5px;
+    background-color: black;
+    border-radius: 50%;
+    visibility: hidden;
+    justify-self: center;
+}
+
+.dice_dots.one > *:nth-child(5),
+.dice_dots.two > *:nth-child(1), .dice_dots.two > *:nth-child(9),
+.dice_dots.three > *:nth-child(1), .dice_dots.three > *:nth-child(5), .dice_dots.three > *:nth-child(9),
+.dice_dots.four > *:nth-child(1), .dice_dots.four > *:nth-child(3), .dice_dots.four > *:nth-child(7), .dice_dots.four > *:nth-child(9),
+.dice_dots.five > *:nth-child(1), .dice_dots.five > *:nth-child(3), .dice_dots.five > *:nth-child(5), .dice_dots.five > *:nth-child(7), .dice_dots.five > *:nth-child(9),
+.dice_dots.six > *:nth-child(1), .dice_dots.six > *:nth-child(3), .dice_dots.six > *:nth-child(4), .dice_dots.six > *:nth-child(6), .dice_dots.six > *:nth-child(7), .dice_dots.six > *:nth-child(9) {
+    visibility: visible;
+}
+/* 
+.three{
+    display: flex;
+    justify-content: space-around;
+    padding: 5px;
+}
+
+.four {
+    display: grid;
+    grid-template: 1fr 1fr / 1fr 1fr;
+    padding: 5px;
+    padding-left: 10px;
+    justify-content: space-evenly;
+} 
+
+.five {
+    display: grid;
+    grid-template-areas: 
+        "dot1 . dot2"
+        ". dot3 ."
+        "dot4 . dot5"
+    ;
+    padding: 5px;
+    justify-content: space-evenly;
+}
+
+.six{
+    display: grid;
+    grid-template: 1fr 1fr 1fr/ 1fr 1fr;
+    padding: 5px;
+    padding-left: 10px;
+    justify-content: space-around;
+} */
+.dot1{
+    grid-area: dot1;
+}
+.dot2{
+    grid-area: dot2;
+}
+.dot3{
+    grid-area: dot3;
+}
+.dot4{
+    grid-area: dot4;
+}
+.dot5{
+    grid-area: dot5;
+}
+
+.stats {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 5px 20px;
+    font-size: 12px;
+    
+}
+
+.label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.stats h4 {
+    color: rgb(237, 190, 89);
+    
+}
+
+.timer {
+    display: flex;
+    justify-content: space-between;
+    margin: 5px 5px;
+}
+
+.paddingLeft {
+    padding-left: 30px;
+}
