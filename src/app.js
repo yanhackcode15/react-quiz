@@ -1,161 +1,60 @@
 import React from "react"
 import ReactDOM from "react-dom"
-import Die from "./components/die.js"
-import {nanoid} from "nanoid"
-import Confetti from "react-confetti"
-import { faListCheck } from "@fortawesome/free-solid-svg-icons"
-import Dot from "./components/dot.js"
-import MyTimer from "./components/myTimer"
-import { useStopwatch } from 'react-timer-hook';
-
+import Quiz from "./components/quiz"
+import { nanoid } from 'nanoid'
 
 
 
 export default function App() {
+//click on button, render another component
+    const [styles, setStyles] = React.useState({})
+    const [quizzes, setQuiz]= React.useState([])
 
-    //allow hold a die and if isheld true, change background color (x)
-    //click on button will toggle hold(x)
-    //when it's onhold, roll dice will not roll them (x)
-    //set a winning coniddtion which is all on hold and all match - hint use array.every(x)
-    //show confetti when win and hide otherwise (x) > use
-    //reset game after winning (x)
-    //confetti resize (x)
-
-    /*extra credit
-    1. make dots (x)
-    a. make a dot component and inport it
-    b. show doct number matching cunt
-    c.format dots
-    2 track how many times rolled (x)
-    3. Track how much time (x)
-    4. localstorage save
-    */
-
-    const {
-        seconds,
-        minutes,
-        hours,
-        days,
-        isRunning,
-        start,
-        pause,
-        reset,
-      } = useStopwatch({ autoStart: true });
-
-    const [dice, setDice]= React.useState(rollNewDice())
-    const [tenzies, setTenzies]=React.useState(false)
-    const [rolled, setRolled]=React.useState(0)
-    function rollNewDice(){
-        //generate an array of 10 random numbers 1-6
-        const newDice=[]
-        for (let i=0; i<10; i++){
-            newDice.push({
-                value: Math.ceil(Math.random()*6),
-                id: nanoid(),
-                isHeld: false
-            })
-        }
-        return newDice
+    function hideOverlay(){
+        setStyles({display: "none"})
     }
-    function newGame(){
-        setDice(rollNewDice())
-        setTenzies(false)
-        setRolled(0)
-        reset()
-        start()
+    function randomAnswers(incorrectAnswers, correctAnswer) {
+        const pos = Math.round(Math.random()*3)
+        const cp_array=[...incorrectAnswers]
+        cp_array.splice(pos,0, correctAnswer)
+        return cp_array
     }
-    function rollDice(){
-        //only genereate die for those not on hold
-        const newDice=[]
-        for (let i=0; i<10; i++){
-            if (!dice[i].isHeld) {
-                newDice.push({
-                    value: Math.ceil(Math.random()*6),
-                    id: nanoid(),
-                    isHeld: false
-                })
+    React.useEffect(()=>{
+        fetch('https://opentdb.com/api.php?amount=10&category=17&difficulty=medium&type=multiple')
+        .then( response=>{
+            if (response.ok) {
+                return response.json()
             }
-            else {
-                newDice.push(dice[i])
-            }
-            
-        }
-        setDice(newDice) 
-        setRolled(prev=>prev+1)
-    }
-    function toggleHeld(id){
-        //setDice state change
-        setDice(prevDice=>{
-            const newDice=[];
-            for (let i=0; i<prevDice.length; i++){
-                if (prevDice[i].id===id) {
-                    newDice.push({
-                        ...prevDice[i],
-                        isHeld: !prevDice[i].isHeld
-                    })
-                }
-                else {
-                    newDice.push(prevDice[i])
-                }
-            }
-            return newDice
+            throw response
         })
-    }
+        .then(data=>{
+            const quizData = data.results.map(quiz => {return {question: quiz.question, answers: randomAnswers(quiz.incorrect_answers, quiz.correct_answer)}
+                
+            });
+            const rendered_quizzes=quizData.map(quiz=>{return(
+                <div key={nanoid()}>
+                    <h2>{quiz.question}</h2>
+                    <ul>
+                        {quiz.answers.map(answer=>(<li key={nanoid()}>{answer}</li>))}
+                    </ul>
+                </div>
 
-    React.useEffect(()=>{
-        const allHeld=dice.every((die)=>die.isHeld)
-        const allMatch=dice.every((die)=>die.value===dice[0].value)
-        if (allHeld&&allMatch) {
-            setTenzies(true)
-        }
-    }, [dice])
+            )})
+            setQuiz(rendered_quizzes)
 
-    React.useEffect(()=>{
-        if (tenzies) {
-            reset()
-            
-        }
-        
-    }, [tenzies])
+        })
+        .catch(e=>console.log("error ", e))
+    },[])
 
-    const diceElements = dice.map(die=>{
-        return (
-            <Die
-                key={nanoid()}
-                value={die.value}
-                id={die.id}
-                isHeld={die.isHeld}
-                onClick={()=>toggleHeld(die.id)}    
-            />
-        )
-    })
+
     return (
-        
-        <main className="main">
-            {tenzies&&
-            <Confetti 
-                width="360px" 
-            />}
-            <header className="stats">
-                <div className="label">
-                    <h4>Rolled: {rolled}</h4>
-                    <h4 className="paddingLeft">Time Lapsed:</h4>
-                </div>
-                <MyTimer days={days} hours={hours} minutes={minutes} seconds={seconds} isRunning={isRunning}/>
-                
-                    
-            </header>
-            
-            <div className="innerMain">
-                <h1>Tenzies</h1>
-                <p>Roll until all dice are the same. Click each die to freeze it at its current value between rolls.</p>
-                <div className="dice" >
-                    {diceElements}
-                </div>
-                
-                <button className="roll" onClick={!tenzies?rollDice:newGame}>{!tenzies?"Roll":"New Game"}</button>
-                {/* <button onClick={reset}>reset timer</button> */}
+        <div className="main">
+            <div style={styles} className="overlay">
+                <h1>Quizzical</h1>
+                <h6>Some description if needed</h6>
+                <button  onClick={hideOverlay}>Start quiz</button>
             </div>
-        </main>
+            <div className="mainQuiz">{quizzes}</div>
+        </div>
     )
 }
