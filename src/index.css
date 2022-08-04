@@ -8,10 +8,10 @@
 .container {
     position: relative;
 }
-.overlay{
-    position: absolute;
-    z-index: 0;
-}
+/* .overlay{
+   
+    
+} */
 
 .mainQuiz{
     z-index: -1;
