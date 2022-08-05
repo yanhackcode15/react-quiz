@@ -2,6 +2,8 @@ import React, { useCallback } from "react"
 import ReactDOM from "react-dom"
 // import { nanoid } from 'nanoid'
 import Quiz from "./components/quiz"
+import blueBlob from "./images/blueBlob.png"
+import yellowBlob from "./images/yellowBlob.png"
 
 // (x) render each answer array with color flags when check answer state is true 
 //finish the check answers button toggle to retake quiz, finish logic
@@ -19,10 +21,10 @@ export default function App() {
         zIndex: "0"
     }
     const quizzesDefaultStyles={
-        zIndex: "-1"
+        // zIndex: "-1"
     }
     const [overlayStyles, setOverlayStyles] = React.useState(overlayDefaultStyles)
-    const [quizzesStyles, setQuizzesStyles] = React.useState(quizzesDefaultStyles)
+    const [quizzesStyles, setQuizzesStyles] = React.useState({})
     const [quizzes, setQuiz]= React.useState([])
     //quizzes = [ ...{ question: "", answers: [ ...{data:"" , isCorrect: true/flase, clicked: true/false}]}]
     const [graded, setGraded] = React.useState(false)
@@ -40,14 +42,28 @@ export default function App() {
         return cp_array
     }
 
-    function toggleButton(){
+    function gradeQuiz(){
         //will iterate through the entire quiz array, compare answer.clicked clicked and answer.isCorrect, if match, show answer green; otherwise, show answer red and correct anwer green
-        setGraded(prev=>!prev)
-        
+        setGraded(true)
+    }
+
+    function restartQuiz(){
+        setGraded(false)
+        //reset all answers to be none clicked
+        setQuiz(prev=>
+            prev.map((quiz,i)=>{
+                const answers = quiz.answers.map(answer=>({...answer, clicked: false}))
+                const newQuiz ={...quiz, answers: answers}
+                return newQuiz
+            })
+        )
     }
     const handleAnswerClick = React.useCallback(
         // function answerChosen(quiz_index, answer_index){
         (quiz_index, answer_index) => {
+            // if (graded){
+            //     return null
+            // }
             //the answer with that answer index for the quiz with that index is clicked and change the answer to green
             //go to i, j in the quiz array and answer , match found, toggle the clicked property
 
@@ -56,68 +72,19 @@ export default function App() {
                //set all answers to clicked: false
                 const answers = newState[quiz_index].answers.map((a)=>({...a, clicked: false}))
                 newState[quiz_index].answers = answers;
-                
+
                 //set new answer to be clicked: true
                 const answer = {
                     ...newState[quiz_index].answers[answer_index]
                 };
                 answer.clicked = !answer.clicked;
                 newState[quiz_index].answers[answer_index] = answer;
-                console.log(newState[quiz_index])
 
                 return newState;
             })
-        }, [setQuiz]);
+        }, [setQuiz, graded]);
 
-    // function setAnswerStyles(clicked, correct, graded){
-    //     const defaultStyles = {color: "black"}
-    //     if(graded) {
-
-                        
-    //         if (clicked&&correct) {
-    //             return {...defaultStyles, color:"green"}
-    //         }
-    //         else if(clicked){
-    //             return {...defaultStyles, color: "red"}
-    //         }
-    //         else if (correct){
-    //             return {...defaultStyles, color: "green"}
-
-    //         }
-    //         else {
-    //             return {...defaultStyles, color: "black"}
-    //         }
-    //     }
-    //     else {
-    //         return clicked?{...defaultStyles, color:"purple"}:{...defaultStyles, color:"black"}
-    //     }
-    // }
-
-    // function renderedQuizzes(quizArray){
-    //     return quizArray.map((quiz, i)=>{
-    //         const temp = (
-    //         <div key={`q-${i}`}>
-    //             <h2>{quiz.question}</h2>
-    //             <ul>
-    //                 {
-    //                 quiz.answers.map((answer, j)=>{
-                        
-    //                     return (
-    //                     <li 
-    //                         key={`q-${i}-a-${j}`} 
-    //                         onClick={()=>{answerChosen(i,j)}}
-    //                         style={setAnswerStyles(answer.clicked, answer.isCorrect, graded)}
-    //                         >
-    //                         {answer.data}
-    //                     </li>)}) 
-    //                 }
-    //             </ul>
-    //         </div>
-    //         )
-    //         return temp
-    //     })
-    // }
-
+    
     React.useEffect(()=>{
         fetch('https://opentdb.com/api.php?amount=10&category=17&difficulty=medium&type=multiple')
         .then( response=>{
@@ -140,13 +107,19 @@ export default function App() {
     return (
         <div className="main">
             <div style={overlayStyles} className="overlay">
-                <h1>Quizzical</h1>
-                <h6>Some description if needed</h6>
-                <button  onClick={hideOverlay}>Start quiz</button>
+                <div className="centerOverlay">
+                    <img src={blueBlob} className="blueBlob"/>
+                    <img src={yellowBlob} className="yellowBlob"/>
+                    <h1 className="overLayTitle">Quizzical</h1>
+                    <h6 className="overLayText">Some description if needed</h6>
+                    <button onClick={hideOverlay} className="overlayButton">Start quiz</button>
+                </div>
             </div>
             <div className="mainQuiz" style={quizzesStyles}>
                 {quizzes.map((quiz, i)=>(<Quiz quiz={quiz} index={i} graded={graded} onClickAnswer={handleAnswerClick}/>))}
-                <button onClick={toggleButton}>{!graded? "Check answers": "How did you do? Restart quiz"}</button>
+                <button style={!graded?{}:{display: "none"}} onClick={gradeQuiz}>Check Answers</button>
+                <button style={!graded?{display: "none"}:{}} onClick={restartQuiz}>Restart Quiz</button>
+
             </div>
             
         </div>

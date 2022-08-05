@@ -37,7 +37,7 @@ export default function Quiz({quiz, index, graded, onClickAnswer, }) {
                     return (
                     <li 
                         key={`q-${index}-a-${j}`} 
-                        onClick={()=>{onClickAnswer(index,j)}}
+                        onClick={()=>{!graded&&onClickAnswer(index,j)}}//if already graded, don't allow clicks. 
                         style={setAnswerStyles(answer.clicked, answer.isCorrect, graded)}
                         >
                         {answer.data}
