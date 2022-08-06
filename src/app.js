@@ -5,26 +5,18 @@ import Quiz from "./components/quiz"
 import blueBlob from "./images/blueBlob.png"
 import yellowBlob from "./images/yellowBlob.png"
 
-// (x) render each answer array with color flags when check answer state is true 
-//finish the check answers button toggle to retake quiz, finish logic
-// retake quiz will refetch api, consider updating useEffect? or driven by a button click?
-
-
-
 export default function App() {
 //click on button, render another component
     const overlayDefaultStyles = {
         backgroundColor: "white",
-        width: "100%",
-        height: "100%",
-        position: "absolute",
         zIndex: "0"
     }
     const quizzesDefaultStyles={
         // zIndex: "-1"
+        display: "none"
     }
     const [overlayStyles, setOverlayStyles] = React.useState(overlayDefaultStyles)
-    const [quizzesStyles, setQuizzesStyles] = React.useState({})
+    const [quizzesStyles, setQuizzesStyles] = React.useState(quizzesDefaultStyles)
     const [quizzes, setQuiz]= React.useState([])
     //quizzes = [ ...{ question: "", answers: [ ...{data:"" , isCorrect: true/flase, clicked: true/false}]}]
     const [graded, setGraded] = React.useState(false)
@@ -32,7 +24,7 @@ export default function App() {
 
     function hideOverlay(){
         setOverlayStyles(defaultStyles=>({...defaultStyles, display: "none", zIndex: "-1"}))
-        setQuizzesStyles(defaultStyles=>({...defaultStyles, zIndex: "1"}))
+        setQuizzesStyles(defaultStyles=>({...defaultStyles, zIndex: "1", display: "flex"}))
     }
     function randomSort(incorrectAnswers, correctAnswer) {
         //randomly sort answers and add two attributes to each answer: clicked, isCorrect
@@ -106,21 +98,31 @@ export default function App() {
 
     return (
         <div className="main">
-            <div style={overlayStyles} className="overlay">
-                <div className="centerOverlay">
-                    <img src={blueBlob} className="blueBlob"/>
-                    <img src={yellowBlob} className="yellowBlob"/>
+            <div style={overlayStyles} className="overlay layout">
+                <div >
+                    
                     <h1 className="overLayTitle">Quizzical</h1>
                     <h6 className="overLayText">Some description if needed</h6>
                     <button onClick={hideOverlay} className="overlayButton">Start quiz</button>
                 </div>
+                <img src={blueBlob} className="blueBlob"/>
+                <img src={yellowBlob} className="yellowBlob"/>
             </div>
-            <div className="mainQuiz" style={quizzesStyles}>
-                {quizzes.map((quiz, i)=>(<Quiz quiz={quiz} index={i} graded={graded} onClickAnswer={handleAnswerClick}/>))}
-                <button style={!graded?{}:{display: "none"}} onClick={gradeQuiz}>Check Answers</button>
-                <button style={!graded?{display: "none"}:{}} onClick={restartQuiz}>Restart Quiz</button>
+            <div style={quizzesStyles} className="mainQuiz layout">
+                
+                <div>
+                    {quizzes.map((quiz, i)=>(<Quiz quiz={quiz} index={i} graded={graded} onClickAnswer={handleAnswerClick}/>))}
+                </div>
+                <div className="center">
+                    <button className="checkAnswers" style={!graded?{}:{display: "none"}} onClick={gradeQuiz}>Check Answers</button>
 
+                    <button className="newQuiz" style={!graded?{display: "none"}:{}} onClick={restartQuiz}>Restart Quiz</button>
+                </div>
+                <img src={blueBlob} className="blueBlob"/>
+                <img src={yellowBlob} className="yellowBlob"/>
             </div>
+            
+
             
         </div>
     )
