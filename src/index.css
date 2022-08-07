@@ -141,4 +141,15 @@ button:active {
     display: flex;
     justify-content: center;
 }
+.scoreText {
+    font-family: "Inter", sans-serif;
+    font-size: 13px;
+    margin-right: 20px;
+    margin-top:30px;
+}
+.scoreSection {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
 

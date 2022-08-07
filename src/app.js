@@ -76,7 +76,15 @@ export default function App() {
             })
         }, [setQuiz, graded]);
 
-    
+    function scoring() {
+        return quizzes.reduce((sum, quiz)=>{
+            if (quiz.answers.findIndex(answer=>answer.isCorrect)===quiz.answers.findIndex(answer=>answer.clicked)){
+                sum++
+            }
+            return sum
+        },0)
+        // return 0
+    }
     React.useEffect(()=>{
         fetch('https://opentdb.com/api.php?amount=10&category=17&difficulty=medium&type=multiple')
         .then( response=>{
@@ -116,7 +124,10 @@ export default function App() {
                 <div className="center">
                     <button className="checkAnswers" style={!graded?{}:{display: "none"}} onClick={gradeQuiz}>Check Answers</button>
 
-                    <button className="newQuiz" style={!graded?{display: "none"}:{}} onClick={restartQuiz}>Restart Quiz</button>
+                    <div  className="scoreSection" style={!graded?{display: "none"}:{}}>
+                        <h4 className="scoreText">You have {graded&&scoring()} out of {quizzes.length} correct answers!</h4>
+                        <button className="newQuiz" onClick={restartQuiz}>Restart Quiz</button>
+                    </div>
                 </div>
                 <img src={blueBlob} className="blueBlob"/>
                 <img src={yellowBlob} className="yellowBlob"/>
