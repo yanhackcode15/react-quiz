@@ -1,6 +1,6 @@
 import React, { useCallback } from "react"
 import ReactDOM from "react-dom"
-// import { nanoid } from 'nanoid'
+import { nanoid } from 'nanoid'
 import Quiz from "./components/quiz"
 import blueBlob from "./images/blueBlob.png"
 import yellowBlob from "./images/yellowBlob.png"
@@ -17,10 +17,11 @@ export default function App() {
     }
     const [overlayStyles, setOverlayStyles] = React.useState(overlayDefaultStyles)
     const [quizzesStyles, setQuizzesStyles] = React.useState(quizzesDefaultStyles)
-    const [quizzes, setQuiz]= React.useState([])
+    const dummyQuizzes=[1,2,3,4,5,6,7,8,9,10].map(num=>({question:num,answers:[]}))
+    const [quizzes, setQuiz]= React.useState(dummyQuizzes)
     //quizzes = [ ...{ question: "", answers: [ ...{data:"" , isCorrect: true/flase, clicked: true/false}]}]
     const [graded, setGraded] = React.useState(false)
-    const [refreshQuiz, setRefreshQuiz] = React.useState(true)
+    const [newQuiz, setNewQuiz] = React.useState(true)
 
 
     function hideOverlay(){
@@ -52,6 +53,10 @@ export default function App() {
         )
     }
 
+    function refreshQuiz(){
+        setNewQuiz(prev=>!prev)
+        setGraded(false)
+    }
     const handleAnswerClick = React.useCallback(
         // function answerChosen(quiz_index, answer_index){
         (quiz_index, answer_index) => {
@@ -114,7 +119,7 @@ export default function App() {
             setQuiz(quizData)
         })
         .catch(e=>console.log("error ", e))
-    },[refreshQuiz])
+    },[newQuiz])
 
 
     return (
@@ -129,7 +134,7 @@ export default function App() {
                 <img src={blueBlob} className="blueBlob"/>
                 <img src={yellowBlob} className="yellowBlob"/>
             </div>
-            <div style={quizzesStyles} className="mainQuiz layout">
+            <div style={quizzes[0].question===0? {display: none}:quizzesStyles} className="mainQuiz layout fade-in" key={quizzes[0].question}>
                 
                 <div>
                     {quizzes.map((quiz, i)=>(<Quiz quiz={quiz} index={i} graded={graded} onClickAnswer={handleAnswerClick}/>))}
@@ -140,10 +145,7 @@ export default function App() {
                     <div  className="scoreSection" style={!graded?{display: "none"}:{}}>
                         <h4 className="scoreText">You have {graded&&scoring()} out of {quizzes.length} correct answers!</h4>
                         <button className="retakeQuizButton" onClick={restartQuiz}>Retake Quiz</button>
-                        <button className="newQuizButton" onClick={()=>{
-                            setRefreshQuiz(prev=>!prev)
-                            setGraded(false)
-                        }}>Get New Quiz</button>
+                        <button className="newQuizButton" onClick={refreshQuiz}>Get New Quiz</button>
                     </div>
                 </div>
                 <img src={blueBlob} className="blueBlob"/>
