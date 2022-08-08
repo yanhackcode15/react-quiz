@@ -20,6 +20,7 @@ export default function App() {
     const [quizzes, setQuiz]= React.useState([])
     //quizzes = [ ...{ question: "", answers: [ ...{data:"" , isCorrect: true/flase, clicked: true/false}]}]
     const [graded, setGraded] = React.useState(false)
+    const [refreshQuiz, setRefreshQuiz] = React.useState(true)
 
 
     function hideOverlay(){
@@ -50,6 +51,7 @@ export default function App() {
             })
         )
     }
+
     const handleAnswerClick = React.useCallback(
         // function answerChosen(quiz_index, answer_index){
         (quiz_index, answer_index) => {
@@ -86,7 +88,7 @@ export default function App() {
         // return 0
     }
     React.useEffect(()=>{
-        fetch('https://opentdb.com/api.php?amount=10&category=17&difficulty=medium&type=multiple')
+        fetch('https://opentdb.com/api.php?amount=10&category=17&difficulty=medium&type=multiple&encode=url3986')
         .then( response=>{
             if (response.ok) {
                 return response.json()
@@ -94,14 +96,25 @@ export default function App() {
             throw response
         })
         .then(data=>{
-            const quizData = data.results.map(quiz => {return {question: quiz.question, answers: randomSort(quiz.incorrect_answers, quiz.correct_answer)}
+            const quizData = data.results.map(quiz => {
+                try {
+                    return {
+                        question: decodeURIComponent(quiz.question),
+                        answers: randomSort(
+                            quiz.incorrect_answers.map(answer => decodeURIComponent(answer)),
+                            decodeURIComponent(quiz.correct_answer)
+                        ),
+                    }
+                }
+                catch(err) {
+                    console.log('ERROR', {quiz, err});
+                }
                 //[...{question: "", answers: [...{data:"" , isCorrect: true/flase, clicked: true/false}]}]
             });
             setQuiz(quizData)
-
         })
         .catch(e=>console.log("error ", e))
-    },[])
+    },[refreshQuiz])
 
 
     return (
@@ -126,7 +139,11 @@ export default function App() {
 
                     <div  className="scoreSection" style={!graded?{display: "none"}:{}}>
                         <h4 className="scoreText">You have {graded&&scoring()} out of {quizzes.length} correct answers!</h4>
-                        <button className="newQuiz" onClick={restartQuiz}>Restart Quiz</button>
+                        <button className="retakeQuizButton" onClick={restartQuiz}>Retake Quiz</button>
+                        <button className="newQuizButton" onClick={()=>{
+                            setRefreshQuiz(prev=>!prev)
+                            setGraded(false)
+                        }}>Get New Quiz</button>
                     </div>
                 </div>
                 <img src={blueBlob} className="blueBlob"/>
