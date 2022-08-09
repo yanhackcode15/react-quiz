@@ -1,9 +1,6 @@
 import React, { useCallback } from "react"
-import ReactDOM from "react-dom"
-import { nanoid } from 'nanoid'
-import Quiz from "./components/quiz"
-import blueBlob from "./images/blueBlob.png"
-import yellowBlob from "./images/yellowBlob.png"
+import Overlay from "./components/overlay"
+import {QuizContainer} from "./components/quizContainer"
 
 export default function App() {
 //click on button, render another component
@@ -17,17 +14,16 @@ export default function App() {
     }
     const [overlayStyles, setOverlayStyles] = React.useState(overlayDefaultStyles)
     const [quizzesStyles, setQuizzesStyles] = React.useState(quizzesDefaultStyles)
-    const dummyQuizzes=[1,2,3,4,5,6,7,8,9,10].map(num=>({question:num,answers:[]}))
-    const [quizzes, setQuiz]= React.useState(dummyQuizzes)
+    // const dummyQuizzes=[1,2,3,4,5,6,7,8,9,10].map(num=>({question:num,answers:[]}))
+    const [quizzes, setQuiz]= React.useState([])
     //quizzes = [ ...{ question: "", answers: [ ...{data:"" , isCorrect: true/flase, clicked: true/false}]}]
     const [graded, setGraded] = React.useState(false)
-    const [newQuiz, setNewQuiz] = React.useState(true)
 
-
-    function hideOverlay(){
+    const hideOverlay = React.useCallback(()=>{
         setOverlayStyles(defaultStyles=>({...defaultStyles, display: "none", zIndex: "-1"}))
         setQuizzesStyles(defaultStyles=>({...defaultStyles, zIndex: "1", display: "flex"}))
-    }
+
+    },[]) 
     function randomSort(incorrectAnswers, correctAnswer) {
         //randomly sort answers and add two attributes to each answer: clicked, isCorrect
         const pos = Math.round(Math.random()*3)
@@ -36,12 +32,12 @@ export default function App() {
         return cp_array
     }
 
-    function gradeQuiz(){
+    const gradeQuiz = React.useCallback(() => {
         //will iterate through the entire quiz array, compare answer.clicked clicked and answer.isCorrect, if match, show answer green; otherwise, show answer red and correct anwer green
         setGraded(true)
-    }
+    },[]);
 
-    function restartQuiz(){
+    const restartQuiz = React.useCallback(() => {
         setGraded(false)
         //reset all answers to be none clicked
         setQuiz(prev=>
@@ -51,12 +47,13 @@ export default function App() {
                 return newQuiz
             })
         )
-    }
+    },[]);
 
-    function refreshQuiz(){
-        setNewQuiz(prev=>!prev)
+    const refreshQuiz = React.useCallback(() => {
         setGraded(false)
-    }
+        fetchQuiz()
+    },[]);
+
     const handleAnswerClick = React.useCallback(
         // function answerChosen(quiz_index, answer_index){
         (quiz_index, answer_index) => {
@@ -83,16 +80,7 @@ export default function App() {
             })
         }, [setQuiz, graded]);
 
-    function scoring() {
-        return quizzes.reduce((sum, quiz)=>{
-            if (quiz.answers.findIndex(answer=>answer.isCorrect)===quiz.answers.findIndex(answer=>answer.clicked)){
-                sum++
-            }
-            return sum
-        },0)
-        // return 0
-    }
-    React.useEffect(()=>{
+    function fetchQuiz() {
         fetch('https://opentdb.com/api.php?amount=10&category=17&difficulty=medium&type=multiple&encode=url3986')
         .then( response=>{
             if (response.ok) {
@@ -119,41 +107,38 @@ export default function App() {
             setQuiz(quizData)
         })
         .catch(e=>console.log("error ", e))
-    },[newQuiz])
+    }
+    function scoring() {
+        return quizzes.reduce((sum, quiz)=>{
+            if (quiz.answers.findIndex(answer=>answer.isCorrect)===quiz.answers.findIndex(answer=>answer.clicked)){
+                sum++
+            }
+            return sum
+        },0)
+        // return 0
+    }
+    React.useEffect(()=>{
+        fetchQuiz()
+    },[])
 
 
     return (
         <div className="main">
-            <div style={overlayStyles} className="overlay layout">
-                <div >
-                    
-                    <h1 className="overLayTitle">Quizzical</h1>
-                    <h6 className="overLayText">Some description if needed</h6>
-                    <button onClick={hideOverlay} className="overlayButton">Start quiz</button>
-                </div>
-                <img src={blueBlob} className="blueBlob"/>
-                <img src={yellowBlob} className="yellowBlob"/>
-            </div>
-            <div style={quizzes[0].question===0? {display: none}:quizzesStyles} className="mainQuiz layout fade-in" key={quizzes[0].question}>
-                
-                <div>
-                    {quizzes.map((quiz, i)=>(<Quiz quiz={quiz} index={i} graded={graded} onClickAnswer={handleAnswerClick}/>))}
-                </div>
-                <div className="center">
-                    <button className="checkAnswers" style={!graded?{}:{display: "none"}} onClick={gradeQuiz}>Check Answers</button>
-
-                    <div  className="scoreSection" style={!graded?{display: "none"}:{}}>
-                        <h4 className="scoreText">You have {graded&&scoring()} out of {quizzes.length} correct answers!</h4>
-                        <button className="retakeQuizButton" onClick={restartQuiz}>Retake Quiz</button>
-                        <button className="newQuizButton" onClick={refreshQuiz}>Get New Quiz</button>
-                    </div>
-                </div>
-                <img src={blueBlob} className="blueBlob"/>
-                <img src={yellowBlob} className="yellowBlob"/>
-            </div>
+            <Overlay 
+                overlayStyles={overlayStyles}
+                hideOverlay={hideOverlay}
+            />
             
-
-            
+            <QuizContainer
+                quizzesStyles={quizzesStyles}
+                quizzes={quizzes}
+                graded={graded}
+                gradeQuiz={gradeQuiz}
+                restartQuiz={restartQuiz}
+                refreshQuiz={refreshQuiz}
+                scoring={scoring}
+                handleAnswerClick={handleAnswerClick}
+             />
         </div>
     )
 }
